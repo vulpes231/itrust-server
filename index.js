@@ -12,6 +12,9 @@ app.use(cookieParser());
 
 app.use(cors({ origin: true }));
 
+app.use("/", require("./routes/root"));
+app.use("/signin", require("./routes/user/signin"));
+
 app.listen(PORT, () =>
   console.log(`Server started on http://localhost:${PORT}`)
 );
