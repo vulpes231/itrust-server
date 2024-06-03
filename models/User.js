@@ -46,15 +46,20 @@ const userSchema = new Schema({
   occupation: {
     type: String,
   },
-  familyMember: {
+  family: {
     type: String,
   },
   referral: {
     type: String,
+    default: null,
   },
   refreshToken: {
     type: String,
     default: null,
+  },
+  verified: {
+    type: Boolean,
+    default: false,
   },
 });
 
