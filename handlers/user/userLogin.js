@@ -4,8 +4,9 @@ const jwt = require("jsonwebtoken");
 
 const signinUser = async (req, res) => {
   const { username, password } = req.body;
+  console.log(username);
 
-  if (!username || password)
+  if (!username || !password)
     return res.status(400).json({ message: "username and password required!" });
 
   try {
@@ -14,7 +15,7 @@ const signinUser = async (req, res) => {
 
     const matchPass = await bcrypt.compare(password, user.password);
     if (!matchPass)
-      return res.status(404).json({ message: "invalid username or password!" });
+      return res.status(401).json({ message: "invalid username or password!" });
 
     const accessToken = jwt.sign(
       {

@@ -57,7 +57,11 @@ const userSchema = new Schema({
     type: String,
     default: null,
   },
-  verified: {
+  isContactVerified: {
+    type: Boolean,
+    default: false,
+  },
+  isKYCVerified: {
     type: Boolean,
     default: false,
   },

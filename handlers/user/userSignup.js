@@ -3,7 +3,7 @@ const User = require("../../models/User");
 
 const signupUser = async (req, res) => {
   const {
-    firtname,
+    firstname,
     lastname,
     username,
     password,
@@ -29,7 +29,7 @@ const signupUser = async (req, res) => {
     const hashPass = await bcrypt.hash(password, 10);
 
     const newUser = {
-      firstname: firtname,
+      firstname: firstname,
       lastname: lastname,
       username: username,
       password: hashPass,

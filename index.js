@@ -3,9 +3,12 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const { errorLogger, requestLogger } = require("./middlewares/myLoggers");
+const { connectDB } = require("./configs/connectDB");
 
 const PORT = process.env.PORT || 3000;
 const app = express();
+
+connectDB();
 
 app.use(requestLogger);
 app.use(express.urlencoded({ extended: false }));
