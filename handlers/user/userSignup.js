@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../../models/User");
+const Account = require("../../models/Account");
 
 const signupUser = async (req, res) => {
   const {
@@ -19,16 +20,19 @@ const signupUser = async (req, res) => {
     experience,
   } = req.body;
 
-  if (!username || password || !email || !phone || !currency)
-    return res.status(400).json({ message: " bad request!" });
+  if (!username || !password || !email || !phone || !currency) {
+    return res.status(400).json({ message: "Bad request!" });
+  }
 
   try {
-    const user = await User.findOne({ username: username });
-    if (user) return res.status(409).json({ message: "username taken!" });
+    const existingUser = await User.findOne({ username: username });
+    if (existingUser) {
+      return res.status(409).json({ message: "Username taken!" });
+    }
 
     const hashPass = await bcrypt.hash(password, 10);
 
-    const newUser = {
+    const newUser = new User({
       firstname: firstname,
       lastname: lastname,
       username: username,
@@ -43,16 +47,22 @@ const signupUser = async (req, res) => {
       occupation: occupation,
       family: familyMember,
       experience: experience,
-    };
+    });
 
-    await User.create(newUser);
+    const savedUser = await newUser.save();
+
+    const newAccount = new Account({
+      user: savedUser._id,
+    });
+
+    await newAccount.save();
 
     res
-      .status(200)
+      .status(201)
       .json({ message: `New user ${username} created successfully.` });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "An error occured. Try again later" });
+    console.error(error);
+    res.status(500).json({ message: "An error occurred. Try again later." });
   }
 };
 

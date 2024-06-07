@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const { errorLogger, requestLogger } = require("./middlewares/myLoggers");
 const { connectDB } = require("./configs/connectDB");
+const { verifyJWT } = require("./middlewares/verifyJWT");
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -19,6 +20,11 @@ app.use(cors({ origin: true }));
 
 app.use("/", require("./routes/root"));
 app.use("/signin", require("./routes/user/signin"));
+app.use("/signup", require("./routes/user/signup"));
+
+app.use(verifyJWT);
+app.use("/refresh", require("./routes/user/refresh"));
+app.use("/logout", require("./routes/user/logout"));
 
 app.use(errorLogger);
 

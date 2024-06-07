@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const signinUser = async (req, res) => {
   const { username, password } = req.body;
-  console.log(username);
+  console.log(username, password);
 
   if (!username || !password)
     return res.status(400).json({ message: "username and password required!" });
@@ -22,7 +22,7 @@ const signinUser = async (req, res) => {
         user: user.username,
       },
       process.env.ACCESS_TOKEN,
-      { expiresIn: "1d" }
+      { expiresIn: "5m" }
     );
     const refreshToken = jwt.sign(
       {

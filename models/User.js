@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
@@ -65,6 +65,38 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+});
+
+// Pre-save hook to trim spaces from string fields
+userSchema.pre("save", function (next) {
+  const user = this;
+
+  // List of string fields to trim
+  const stringFields = [
+    "firstname",
+    "lastname",
+    "username",
+    "email",
+    "phone",
+    "address",
+    "ssn",
+    "dob",
+    "nationality",
+    "currency",
+    "experience",
+    "occupation",
+    "family",
+    "referral",
+    "refreshToken",
+  ];
+
+  stringFields.forEach((field) => {
+    if (user[field]) {
+      user[field] = user[field].trim();
+    }
+  });
+
+  next();
 });
 
 module.exports = mongoose.model("User", userSchema);
