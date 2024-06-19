@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
-console.log(ACCESS_TOKEN);
+// console.log(ACCESS_TOKEN);
 
 const verifyJWT = (req, res, next) => {
   try {
@@ -23,6 +23,7 @@ const verifyJWT = (req, res, next) => {
       }
 
       req.user = decoded.username;
+      req.userId = decoded.userId;
       next();
     });
   } catch (error) {

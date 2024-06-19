@@ -25,6 +25,7 @@ app.use("/signup", require("./routes/user/signup"));
 app.use(verifyJWT);
 app.use("/refresh", require("./routes/user/refresh"));
 app.use("/logout", require("./routes/user/logout"));
+app.use("/account", require("./routes/user/account"));
 
 app.use(errorLogger);
 

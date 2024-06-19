@@ -20,9 +20,10 @@ const signinUser = async (req, res) => {
     const accessToken = jwt.sign(
       {
         user: user.username,
+        userId: user._id,
       },
       process.env.ACCESS_TOKEN,
-      { expiresIn: "5m" }
+      { expiresIn: "1d" }
     );
     const refreshToken = jwt.sign(
       {
