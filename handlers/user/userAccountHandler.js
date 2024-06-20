@@ -3,6 +3,29 @@ const Transaction = require("../../models/Transaction");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 
+const getUserAccount = async (req, res) => {
+  const { userId } = req.params; // Assuming userId is passed as a route parameter
+  const uid = new ObjectId(userId);
+  try {
+    // Find the user's account by userId
+    const account = await Account.findOne({ user: uid });
+
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+
+    // Optionally, you can populate additional data if needed
+    await account.populate("assets").execPopulate();
+
+    res.status(200).json({ account });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching user account" });
+  }
+};
+
 const getUserBlance = async (req, res) => {
   try {
     const userId = req.userId;
@@ -126,4 +149,4 @@ const withdrawal = async (req, res) => {
   }
 };
 
-module.exports = { deposit, withdrawal, getUserBlance };
+module.exports = { deposit, withdrawal, getUserBlance, getUserAccount };
