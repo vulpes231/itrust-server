@@ -28,6 +28,9 @@ const transactionSchema = new Schema({
   to: {
     type: String,
   },
+  date: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

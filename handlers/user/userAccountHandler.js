@@ -37,7 +37,7 @@ const getUserBlance = async (req, res) => {
 };
 
 const deposit = async (req, res) => {
-  const { walletType, amount } = req.body;
+  const { walletType, amount, date } = req.body;
   const userId = req.userId;
 
   const uid = new ObjectId(userId);
@@ -55,7 +55,8 @@ const deposit = async (req, res) => {
       amount: amount,
       trnxType: "deposit",
       walletType: walletType,
-      status: "pending", // Default status
+      status: "pending",
+      date: date,
     });
 
     // Save the transaction to the database
@@ -76,7 +77,7 @@ const deposit = async (req, res) => {
 };
 
 const withdrawal = async (req, res) => {
-  const { walletType, amount, to } = req.body;
+  const { walletType, amount, to, date } = req.body;
   const userId = req.userId;
   const uid = new ObjectId(userId);
 
@@ -104,7 +105,8 @@ const withdrawal = async (req, res) => {
       trnxType: "withdrawal",
       walletType: walletType,
       to: to, // Assuming 'to' represents withdrawal destination (could be an address)
-      status: "pending", // Default status
+      status: "pending",
+      date: date,
     });
 
     // Save the transaction to the database
