@@ -24,7 +24,10 @@ const refreshTokenHandler = async (req, res) => {
 
     // Generate a new access token
     const newAccessToken = jwt.sign(
-      { user: user.username },
+      {
+        user: user.username,
+        userId: user._id,
+      },
       process.env.ACCESS_TOKEN,
       { expiresIn: "1d" }
     );
