@@ -7,9 +7,9 @@ const {
 } = require("../../handlers/user/userAccountHandler");
 
 const router = express.Router();
-router.route("/balance/:userId").get(getUserBlance);
+router.route("/balance").get(getUserBlance);
 router.route("/deposit").post(deposit);
 router.route("/withdrawal").post(withdrawal);
-router.route("/:userId").get(getUserAccount);
+router.route("/").get(getUserAccount);
 
 module.exports = router;

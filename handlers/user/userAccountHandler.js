@@ -1,6 +1,8 @@
 const Account = require("../../models/Account");
 const Transaction = require("../../models/Transaction");
 
+const { format } = require("date-fns");
+
 const getUserAccount = async (req, res) => {
   const userId = req.userId;
   console.log(userId);
@@ -58,7 +60,7 @@ const getUserBlance = async (req, res) => {
 };
 
 const deposit = async (req, res) => {
-  const { walletType, amount, date } = req.body;
+  const { walletType, amount } = req.body;
   const userId = req.userId;
   console.log(userId);
   if (!userId) return res.status(400).json({ message: "ID required!" });
@@ -70,14 +72,14 @@ const deposit = async (req, res) => {
   }
 
   try {
-    // Create a new transaction for deposit
+    const currentDate = format(new Date(), "yyyy/mm/dd");
     const newTransaction = new Transaction({
       creator: userId,
       amount: amount,
       trnxType: "deposit",
       walletType: walletType,
       status: "pending",
-      date: date,
+      date: currentDate,
     });
 
     // Save the transaction to the database
