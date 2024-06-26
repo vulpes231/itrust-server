@@ -34,6 +34,7 @@ app.use("/transaction", require("./routes/user/transaction"));
 // admin route
 app.use("/users", require("./routes/admin/manageuser"));
 app.use("/trnx", require("./routes/admin/managetrnx"));
+app.use("/wallet", require("./routes/admin/manageaccts"));
 
 app.use(errorLogger);
 

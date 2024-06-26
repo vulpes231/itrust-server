@@ -1,21 +1,17 @@
 const Account = require("../../models/Account");
 const Transaction = require("../../models/Transaction");
-const mongoose = require("mongoose");
-const ObjectId = mongoose.Types.ObjectId;
 
 const getUserAccount = async (req, res) => {
-  const { userId } = req.params; // Assuming userId is passed as a route parameter
-  const uid = new ObjectId(userId);
+  const userId = req.userId;
+  console.log(userId);
+  if (!userId) return res.status(400).json({ message: "ID required!" });
   try {
     // Find the user's account by userId
-    const account = await Account.findOne({ user: uid });
+    const account = await Account.findOne({ user: userId });
 
     if (!account) {
       return res.status(404).json({ message: "Account not found" });
     }
-
-    // Optionally, you can populate additional data if needed
-    await account.populate("assets").execPopulate();
 
     res.status(200).json({ account });
   } catch (error) {
@@ -27,12 +23,14 @@ const getUserAccount = async (req, res) => {
 };
 
 const getUserBlance = async (req, res) => {
+  const userId = req.userId;
+  console.log(userId);
+  if (!userId) return res.status(400).json({ message: "ID required!" });
   try {
-    const userId = req.userId;
-    const uid = new ObjectId(userId);
+    if (!userId) return res.sendStatus(400);
 
     // Find the user's account details
-    const userAccount = await Account.findOne({ user: uid });
+    const userAccount = await Account.findOne({ user: userId });
 
     if (!userAccount) {
       return res.status(404).json({ message: "Account not found" });
@@ -62,8 +60,8 @@ const getUserBlance = async (req, res) => {
 const deposit = async (req, res) => {
   const { walletType, amount, date } = req.body;
   const userId = req.userId;
-
-  const uid = new ObjectId(userId);
+  console.log(userId);
+  if (!userId) return res.status(400).json({ message: "ID required!" });
 
   if (!walletType || !amount) {
     return res
@@ -85,13 +83,6 @@ const deposit = async (req, res) => {
     // Save the transaction to the database
     await newTransaction.save();
 
-    // Update the account's balance for the specified walletType
-    await Account.findOneAndUpdate(
-      { user: uid, "assets.shortName": walletType },
-      { $inc: { "assets.$.balance": amount } },
-      { new: true }
-    );
-
     res.status(200).json({ message: "Deposit successful." });
   } catch (err) {
     console.error("Deposit error:", err);
@@ -102,7 +93,8 @@ const deposit = async (req, res) => {
 const withdrawal = async (req, res) => {
   const { walletType, amount, to, date } = req.body;
   const userId = req.userId;
-  const uid = new ObjectId(userId);
+  console.log(userId);
+  if (!userId) return res.status(400).json({ message: "ID required!" });
 
   if (!walletType || !amount) {
     return res.status(400).json({
@@ -112,7 +104,7 @@ const withdrawal = async (req, res) => {
 
   try {
     // Check if there are sufficient funds in the account for withdrawal
-    const userAccount = await Account.findOne({ user: uid });
+    const userAccount = await Account.findOne({ user: userId });
     const asset = userAccount.assets.find(
       (asset) => asset.shortName === walletType
     );
@@ -127,20 +119,13 @@ const withdrawal = async (req, res) => {
       amount: amount,
       trnxType: "withdrawal",
       walletType: walletType,
-      to: to, // Assuming 'to' represents withdrawal destination (could be an address)
+      to: to,
       status: "pending",
       date: date,
     });
 
     // Save the transaction to the database
     await newTransaction.save();
-
-    // Deduct the amount from the account's balance for the specified walletType
-    await Account.findOneAndUpdate(
-      { user: uid, "assets.shortName": walletType },
-      { $inc: { "assets.$.balance": -amount } },
-      { new: true }
-    );
 
     res.status(200).json({ message: "Withdrawal request submitted." });
   } catch (err) {

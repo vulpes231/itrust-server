@@ -1,4 +1,4 @@
-const Admin = require("../../models/Admin");
+const Account = require("../../models/Account");
 const Transaction = require("../../models/Transaction");
 
 const getAllTrnx = async (req, res) => {
@@ -17,12 +17,11 @@ const getAllTrnx = async (req, res) => {
 
 const approveTransaction = async (req, res) => {
   const isAdmin = req.isAdmin;
-  const { transactionId, newStatus } = req.body;
-
   if (!isAdmin) {
     return res.status(403).json({ message: "Access forbidden" });
   }
 
+  const { transactionId, newStatus } = req.body;
   if (!transactionId || !newStatus) {
     return res
       .status(400)
@@ -30,18 +29,23 @@ const approveTransaction = async (req, res) => {
   }
 
   try {
-    // Find the transaction by ID
     const transaction = await Transaction.findById(transactionId);
-
     if (!transaction) {
       return res.status(404).json({ message: "Transaction not found" });
     }
 
+    const creatorAccount = await Account.findOne({ user: transaction.creator });
+    if (!creatorAccount) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+
+    console.log(creatorAccount);
+
     // Update transaction status
-    transaction.status = newStatus;
+    // transaction.status = newStatus;
 
     // Save the updated transaction
-    await transaction.save();
+    // await transaction.save();
 
     res.status(200).json({
       message: "Transaction status updated successfully",
