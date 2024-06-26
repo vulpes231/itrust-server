@@ -5,6 +5,7 @@ const cors = require("cors");
 const { errorLogger, requestLogger } = require("./middlewares/myLoggers");
 const { connectDB } = require("./configs/connectDB");
 const { verifyJWT } = require("./middlewares/verifyJWT");
+const { corsOptions } = require("./configs/corsOption");
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -16,7 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({ origin: true }));
+app.use(cors(corsOptions));
 
 app.use("/", require("./routes/root"));
 app.use("/signin", require("./routes/user/signin"));
