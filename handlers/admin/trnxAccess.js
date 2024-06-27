@@ -34,6 +34,10 @@ const approveTransaction = async (req, res) => {
       return res.status(404).json({ message: "Transaction not found" });
     }
 
+    if (transaction.status === "completed") {
+      return res.status(400).json({ message: "Already approved!" });
+    }
+
     const creatorAccount = await Account.findOne({ user: transaction.creator });
     if (!creatorAccount) {
       return res.status(404).json({ message: "Account not found" });
@@ -41,7 +45,7 @@ const approveTransaction = async (req, res) => {
 
     // Find the asset to update based on transaction.walletType
     const assetToUpdate = creatorAccount.assets.find(
-      (asset) => asset.shortName === transaction.walletType
+      (asset) => asset.coinName === transaction.walletType
     );
 
     if (!assetToUpdate) {
@@ -51,7 +55,8 @@ const approveTransaction = async (req, res) => {
     }
 
     // Update the asset balance
-    assetToUpdate.balance += transaction.amount;
+    assetToUpdate.balance =
+      parseFloat(assetToUpdate.balance) + parseFloat(transaction.amount);
 
     // Save the updated creator's account
     await creatorAccount.save();
