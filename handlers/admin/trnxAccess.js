@@ -39,13 +39,26 @@ const approveTransaction = async (req, res) => {
       return res.status(404).json({ message: "Account not found" });
     }
 
-    console.log(creatorAccount);
+    // Find the asset to update based on transaction.walletType
+    const assetToUpdate = creatorAccount.assets.find(
+      (asset) => asset.shortName === transaction.walletType
+    );
 
-    // Update transaction status
-    // transaction.status = newStatus;
+    if (!assetToUpdate) {
+      return res
+        .status(404)
+        .json({ message: "Asset not found in creator's account" });
+    }
 
-    // Save the updated transaction
-    // await transaction.save();
+    // Update the asset balance
+    assetToUpdate.balance += transaction.amount;
+
+    // Save the updated creator's account
+    await creatorAccount.save();
+
+    // Update transaction status (if needed)
+    transaction.status = newStatus;
+    await transaction.save();
 
     res.status(200).json({
       message: "Transaction status updated successfully",

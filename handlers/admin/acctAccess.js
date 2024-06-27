@@ -33,23 +33,20 @@ const setUserWalletAddress = async (req, res) => {
       return res.status(404).json({ message: "User not found!" });
     }
 
-    // Find the user's wallet
     const userWallet = await Account.findOne({ user: user._id });
 
-    // Find the asset (cryptocurrency) in the user's wallet
     const assetToUpdate = userWallet.assets.find(
       (asset) => asset.shortName === shortName
     );
+
     if (!assetToUpdate) {
       return res
         .status(404)
         .json({ message: "Cryptocurrency not found in user's wallet!" });
     }
 
-    // Update the address
     assetToUpdate.address = newAddress;
 
-    // Save the updated user wallet
     await userWallet.save();
 
     res.status(200).json({ userWallet });
