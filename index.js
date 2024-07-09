@@ -12,12 +12,12 @@ const app = express();
 
 connectDB();
 
+app.use(cors(corsOptions));
+
 app.use(requestLogger);
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
-
-app.use(cors(corsOptions));
 
 app.use("/", require("./routes/root"));
 app.use("/signin", require("./routes/user/signin"));
