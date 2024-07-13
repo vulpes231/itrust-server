@@ -31,6 +31,7 @@ app.use("/refresh", require("./routes/user/refresh"));
 app.use("/logout", require("./routes/user/logout"));
 app.use("/account", require("./routes/user/account"));
 app.use("/transaction", require("./routes/user/transaction"));
+app.use("/bot", require("./routes/user/bot"));
 
 // admin route
 app.use("/users", require("./routes/admin/manageuser"));

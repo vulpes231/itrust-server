@@ -25,7 +25,6 @@ const deleteUser = async (req, res) => {
   if (!isAdmin) return res.status(403).json({ message: "Access forbidden" });
 
   try {
-    // Find the user by userId
     const user = await User.findOne({ _id: userId });
 
     if (!user) {
