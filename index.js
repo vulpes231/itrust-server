@@ -37,6 +37,7 @@ app.use("/bot", require("./routes/user/bot"));
 app.use("/users", require("./routes/admin/manageuser"));
 app.use("/trnx", require("./routes/admin/managetrnx"));
 app.use("/wallet", require("./routes/admin/manageaccts"));
+app.use("/managebot", require("./routes/admin/managebot"));
 
 app.use(errorLogger);
 
