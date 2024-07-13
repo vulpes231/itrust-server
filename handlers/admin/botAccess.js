@@ -5,7 +5,14 @@ const addNewBot = async (req, res) => {
   if (!isAdmin) return res.status(403).json({ message: "Forbidden access!" });
 
   try {
-    const botData = req.body; // Assuming bot data is sent in the request body
+    const { name, info, img } = req.body;
+
+    const botData = {
+      name: name,
+      info: info,
+      img: img,
+    };
+
     const newBot = await Bot.createBot(botData);
     res.status(201).json({ message: "Bot created successfully", bot: newBot });
   } catch (error) {
@@ -20,8 +27,8 @@ const updateBot = async (req, res) => {
   const isAdmin = req.isAdmin;
   if (!isAdmin) return res.status(403).json({ message: "Forbidden access!" });
 
-  const { botId } = req.params; // Assuming botId is passed as a URL parameter
-  const updateData = req.body; // Assuming updated bot data is sent in the request body
+  const updateData = req.body;
+  const { botId } = req.body;
 
   try {
     const updatedBot = await Bot.editBot(botId, updateData);
@@ -43,7 +50,7 @@ const removeBot = async (req, res) => {
   const isAdmin = req.isAdmin;
   if (!isAdmin) return res.status(403).json({ message: "Forbidden access!" });
 
-  const { botId } = req.params; // Assuming botId is passed as a URL parameter
+  const { botId } = req.params;
 
   try {
     const deletedBot = await Bot.deleteBot(botId);

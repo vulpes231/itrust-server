@@ -11,7 +11,8 @@ const botSchema = new Schema({
     type: String,
   },
   yield: {
-    type: String,
+    type: Number,
+    default: 0,
   },
   rating: {
     type: String,
@@ -26,7 +27,8 @@ const botSchema = new Schema({
     default: "available",
   },
   aum: {
-    type: String,
+    type: Number,
+    default: 0,
   },
   amountTraded: {
     type: Number,
@@ -41,6 +43,9 @@ const botSchema = new Schema({
   usersPurchased: {
     type: Number,
     default: 0,
+  },
+  img: {
+    type: String,
   },
 });
 
