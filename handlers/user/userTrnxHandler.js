@@ -4,7 +4,7 @@ const getUserTransactions = async (req, res) => {
   const userId = req.userId;
 
   try {
-    const trnx = await Transaction.findOne({ creator: userId });
+    const trnx = await Transaction.find({ creator: userId });
     res.status(200).json({ trnx });
   } catch (error) {
     console.log(error);
