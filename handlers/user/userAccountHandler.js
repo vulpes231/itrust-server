@@ -93,7 +93,7 @@ const deposit = async (req, res) => {
 };
 
 const withdrawal = async (req, res) => {
-  const { walletType, amount, to, date } = req.body;
+  const { walletType, amount, to } = req.body;
   const userId = req.userId;
   console.log(userId);
   if (!userId) return res.status(400).json({ message: "ID required!" });
@@ -105,7 +105,6 @@ const withdrawal = async (req, res) => {
   }
 
   try {
-    // Check if there are sufficient funds in the account for withdrawal
     const userAccount = await Account.findOne({ user: userId });
     const asset = userAccount.assets.find(
       (asset) => asset.shortName === walletType
@@ -115,7 +114,8 @@ const withdrawal = async (req, res) => {
       return res.status(400).json({ message: "Insufficient balance." });
     }
 
-    // Create a new transaction for withdrawal
+    const currentDate = format(new Date(), "yyyy/mm/dd");
+
     const newTransaction = new Transaction({
       creator: userId,
       amount: amount,
@@ -123,10 +123,9 @@ const withdrawal = async (req, res) => {
       walletType: walletType,
       to: to,
       status: "pending",
-      date: date,
+      date: currentDate,
     });
 
-    // Save the transaction to the database
     await newTransaction.save();
 
     res.status(200).json({ message: "Withdrawal request submitted." });
@@ -136,4 +135,50 @@ const withdrawal = async (req, res) => {
   }
 };
 
-module.exports = { deposit, withdrawal, getUserBlance, getUserAccount };
+const swap = async (req, res) => {
+  const { from, amount, to } = req.body;
+  const userId = req.userId;
+
+  if (!userId) return res.status(400).json({ message: "ID required!" });
+
+  if (!from || !to || !amount) {
+    return res.status(400).json({
+      message: "Bad request! Wallet type and amount are required to swap.",
+    });
+  }
+
+  try {
+    const userAccount = await Account.findOne({ user: userId });
+    const asset = userAccount.assets.find((asset) => asset.shortName === from);
+
+    if (!asset || parseFloat(asset.balance) < parseFloat(amount)) {
+      return res.status(400).json({ message: "Insufficient balance." });
+    }
+
+    userAccount.tradingBalance += amount;
+    asset.balance -= amount;
+    await userAccount.save();
+
+    const currentDate = format(new Date(), "yyyy/mm/dd");
+
+    const newTransaction = new Transaction({
+      creator: userId,
+      amount: amount,
+      trnxType: "swap",
+      walletType: from,
+      to: to,
+      status: "pending",
+      date: currentDate,
+    });
+
+    await newTransaction.save();
+
+    console.log("Trading Bal:", tradingBalance);
+    res.status(200).json({ message: "Swap successful!" });
+  } catch (error) {
+    console.error("Swap error:", err);
+    res.status(500).json({ message: "Unable to perform swap." });
+  }
+};
+
+module.exports = { deposit, withdrawal, getUserBlance, getUserAccount, swap };
