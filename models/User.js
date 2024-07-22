@@ -3,11 +3,41 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  bots: {
-    type: [Schema.Types.ObjectId],
-    ref: "Bot",
-    default: [],
-  },
+  bots: [
+    {
+      botId: {
+        type: Schema.Types.ObjectId,
+        ref: "Bot",
+      },
+      activatedAt: {
+        type: Date,
+        default: Date.now,
+      },
+      name: {
+        type: String,
+        required: true,
+      },
+      info: {
+        type: String,
+      },
+      yield: {
+        type: Number,
+        default: 0,
+      },
+      rating: {
+        type: String,
+        default: "0.0",
+      },
+      winRate: {
+        type: Number,
+        default: 0,
+      },
+      status: {
+        type: String,
+        default: "available",
+      },
+    },
+  ],
   firstname: {
     type: String,
   },

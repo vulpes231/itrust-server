@@ -83,32 +83,60 @@ botSchema.statics.calculateWinrate = async function (botId) {
   return winRate;
 };
 
-botSchema.statics.purchaseBot = async function (botId, userId) {
-  const user = await User.findById(userId);
+botSchema.statics.activateBot = async function (updateData, userId, session) {
+  const user = await User.findById(userId).session(session);
   if (!user) throw new Error("User not found");
 
-  const account = await Account.findOne({ user: userId });
+  const account = await Account.findOne({ user: userId }).session(session);
   if (!account) throw new Error("Account not found");
 
-  if (account.tradingBalance <= 0) {
-    throw new Error("Deposit funds to your wallet.");
+  const coin = account.assets.find(
+    (cn) => cn.coinName === updateData.walletType
+  );
+
+  if (coin.balance < updateData.amount) {
+    throw new Error("Insufficient fund.");
   }
 
-  user.bots.push(botId);
+  coin.balance -= parseFloat(updateData.amount);
+  account.tradingBalance += parseFloat(updateData.amount);
+  await account.save();
+
+  const bot = await this.findOne({ _id: updateData.botId });
+  console.log(bot);
+
+  const botData = {
+    botId: bot._id,
+    name: bot.name,
+    info: bot.info,
+    yield: 0,
+    rating: bot.rating,
+    winRate: bot.winRate,
+    aum: bot.aum,
+  };
+
+  user.bots.push(botData);
   await user.save();
 
   const updatedBot = await this.findByIdAndUpdate(
-    botId,
+    updateData.botId,
     { $inc: { usersPurchased: 1 } },
-    { new: true }
+    { new: true, session }
   );
 
   return updatedBot;
 };
 
 botSchema.statics.getUserBots = async function (userId) {
-  const user = await User.findById(userId).populate("bots");
-  if (!user) throw new Error("User not found");
+  const user = await User.findById(userId).populate({
+    path: "bots",
+    select: "botId activatedAt",
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   return user.bots;
 };
 
