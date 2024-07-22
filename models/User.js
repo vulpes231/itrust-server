@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+// const { format } = require("date-fns");
 
 const Schema = mongoose.Schema;
 
@@ -15,7 +16,6 @@ const userSchema = new Schema({
       },
       name: {
         type: String,
-        required: true,
       },
       info: {
         type: String,
@@ -25,8 +25,8 @@ const userSchema = new Schema({
         default: 0,
       },
       rating: {
-        type: String,
-        default: "0.0",
+        type: Number,
+        default: 0,
       },
       winRate: {
         type: Number,
@@ -34,7 +34,21 @@ const userSchema = new Schema({
       },
       status: {
         type: String,
-        default: "available",
+        default: "active",
+      },
+      trades: [
+        {
+          outcome: { type: Boolean, required: true },
+          amount: { type: Number, required: true },
+        },
+      ],
+      aum: {
+        type: Number,
+        default: 0,
+      },
+      remainingDays: {
+        type: Number,
+        default: 30,
       },
     },
   ],
@@ -133,5 +147,18 @@ userSchema.pre("save", function (next) {
 
   next();
 });
+
+userSchema.methods.updateRemainingDays = function () {
+  const currentDate = new Date();
+  this.bots.forEach((bot) => {
+    const activatedDate = new Date(bot.activatedAt);
+    const elapsedTime = currentDate.getTime() - activatedDate.getTime();
+    const remainingDays = Math.max(
+      30 - Math.floor(elapsedTime / (1000 * 60 * 60 * 24)),
+      0
+    );
+    bot.remainingDays = remainingDays;
+  });
+};
 
 module.exports = mongoose.model("User", userSchema);

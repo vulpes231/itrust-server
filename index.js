@@ -28,6 +28,7 @@ app.use("/create", require("./routes/admin/create"));
 
 app.use(verifyJWT);
 app.use("/refresh", require("./routes/user/refresh"));
+app.use("/user", require("./routes/user/user"));
 app.use("/logout", require("./routes/user/logout"));
 app.use("/account", require("./routes/user/account"));
 app.use("/transaction", require("./routes/user/transaction"));

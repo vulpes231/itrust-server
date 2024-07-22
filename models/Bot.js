@@ -83,7 +83,12 @@ botSchema.statics.calculateWinrate = async function (botId) {
   return winRate;
 };
 
-botSchema.statics.activateBot = async function (updateData, userId, session) {
+botSchema.statics.activateBot = async function (
+  updateData,
+  userId,
+  session,
+  botData
+) {
   const user = await User.findById(userId).session(session);
   if (!user) throw new Error("User not found");
 
@@ -101,19 +106,6 @@ botSchema.statics.activateBot = async function (updateData, userId, session) {
   coin.balance -= parseFloat(updateData.amount);
   account.tradingBalance += parseFloat(updateData.amount);
   await account.save();
-
-  const bot = await this.findOne({ _id: updateData.botId });
-  console.log(bot);
-
-  const botData = {
-    botId: bot._id,
-    name: bot.name,
-    info: bot.info,
-    yield: 0,
-    rating: bot.rating,
-    winRate: bot.winRate,
-    aum: bot.aum,
-  };
 
   user.bots.push(botData);
   await user.save();

@@ -13,20 +13,37 @@ const activateBot = async (req, res) => {
   session.startTransaction();
 
   try {
+    const bot = await Bot.findOne({ _id: botId });
+    console.log(bot);
+
+    const botData = {
+      botId: bot._id,
+      name: bot.name,
+      info: bot.info,
+      yield: 0,
+      rating: bot.rating,
+      winRate: bot.winRate,
+      aum: bot.aum,
+    };
+
     const updateData = {
-      botId,
       amount,
       walletType,
     };
 
-    const updatedBot = await Bot.activateBot(updateData, userId, session);
+    const updatedBot = await Bot.activateBot(
+      updateData,
+      userId,
+      session,
+      botData
+    );
 
     await session.commitTransaction();
     session.endSession();
 
     res
       .status(200)
-      .json({ message: "Bot purchased successfully", bot: updatedBot });
+      .json({ message: "Bot activated successfully", bot: updatedBot });
   } catch (error) {
     console.error(error);
 
