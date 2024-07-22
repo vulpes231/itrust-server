@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const Account = require("../../models/Account");
 const Transaction = require("../../models/Transaction");
 
@@ -100,14 +101,14 @@ const withdrawal = async (req, res) => {
 
   if (!walletType || !amount) {
     return res.status(400).json({
-      message: "Bad request! Wallet type and amount are required to withdraw.",
+      message: "Wallet type and amount are required to withdraw.",
     });
   }
 
   try {
     const userAccount = await Account.findOne({ user: userId });
     const asset = userAccount.assets.find(
-      (asset) => asset.shortName === walletType
+      (asset) => asset.coinName === walletType
     );
 
     if (!asset || parseFloat(asset.balance) < parseFloat(amount)) {
@@ -147,16 +148,26 @@ const swap = async (req, res) => {
     });
   }
 
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const userAccount = await Account.findOne({ user: userId });
-    const asset = userAccount.assets.find((asset) => asset.shortName === from);
+    const userAccount = await Account.findOne({ user: userId }).session(
+      session
+    );
+    const asset = userAccount.assets.find((asset) => asset.coinName === from);
+
+    console.log(asset);
 
     if (!asset || parseFloat(asset.balance) < parseFloat(amount)) {
+      console.log(asset.balance, "amount", amount);
+      await session.abortTransaction();
+      session.endSession();
       return res.status(400).json({ message: "Insufficient balance." });
     }
 
-    userAccount.tradingBalance += amount;
-    asset.balance -= amount;
+    userAccount.tradingBalance += parseFloat(amount);
+    asset.balance -= parseFloat(amount);
     await userAccount.save();
 
     const currentDate = format(new Date(), "yyyy/mm/dd");
@@ -167,16 +178,21 @@ const swap = async (req, res) => {
       trnxType: "swap",
       walletType: from,
       to: to,
-      status: "pending",
+      status: "completed",
       date: currentDate,
     });
 
-    await newTransaction.save();
+    await newTransaction.save({ session });
 
-    console.log("Trading Bal:", tradingBalance);
+    await session.commitTransaction();
+    session.endSession();
+
+    console.log("Trading Bal:", userAccount.tradingBalance);
     res.status(200).json({ message: "Swap successful!" });
   } catch (error) {
-    console.error("Swap error:", err);
+    console.error("Swap error:", error);
+    await session.abortTransaction();
+    session.endSession();
     res.status(500).json({ message: "Unable to perform swap." });
   }
 };

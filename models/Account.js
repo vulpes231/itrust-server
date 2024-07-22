@@ -12,8 +12,8 @@ const assetSchema = new Schema({
     required: true,
   },
   balance: {
-    type: String,
-    default: "0.00",
+    type: Number,
+    default: 0,
     required: true,
   },
   address: {
@@ -24,8 +24,8 @@ const assetSchema = new Schema({
 
 const accountSchema = new Schema({
   tradingBalance: {
-    type: String,
-    default: "0.00",
+    type: Number,
+    default: 0,
   },
   assets: {
     type: [assetSchema],
@@ -33,19 +33,19 @@ const accountSchema = new Schema({
       {
         coinName: "bitcoin",
         shortName: "btc",
-        balance: "0.00",
+        balance: 0,
         address: null,
       },
       {
         coinName: "ethereum",
         shortName: "eth",
-        balance: "0.00",
+        balance: 0,
         address: null,
       },
       {
         coinName: "tether",
         shortName: "usdt",
-        balance: "0.00",
+        balance: 0,
         address: null,
       },
     ],

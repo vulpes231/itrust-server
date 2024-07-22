@@ -14,7 +14,7 @@ const transactionSchema = new Schema({
   },
   trnxType: {
     type: String,
-    enum: ["deposit", "withdrawal"],
+    enum: ["deposit", "withdrawal", "swap"],
     required: true,
   },
   walletType: {
