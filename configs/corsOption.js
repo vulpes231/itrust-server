@@ -1,7 +1,9 @@
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3300",
-  "https://quadx.io, https://admin.quadx.io, https://server.quadx.io",
+  "https://quadx.io",
+  "https://admin.quadx.io",
+  "https://server.quadx.io",
 ];
 
 const corsOptions = {
