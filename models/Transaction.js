@@ -8,6 +8,9 @@ const transactionSchema = new Schema({
     ref: "User",
     required: true,
   },
+  createdBy: {
+    type: String,
+  },
   amount: {
     type: String,
     required: true,

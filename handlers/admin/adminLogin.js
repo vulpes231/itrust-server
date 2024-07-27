@@ -59,4 +59,23 @@ const signinAdmin = async (req, res) => {
   }
 };
 
-module.exports = { signinAdmin };
+const logoutAdmin = async (req, res) => {
+  const isAdmin = req.isAdmin;
+  const adminId = req.adminId;
+  if (!isAdmin) return res.status(403).json({ message: "forbidden access!" });
+
+  try {
+    const admin = await Admin.findOne({ _id: adminId });
+    if (!admin) return res.status(404).json({ message: "admin not found!" });
+
+    admin.refreshToken = null;
+    admin.save();
+
+    res.status(204).json({ message: "" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "error logging out user." });
+  }
+};
+
+module.exports = { signinAdmin, logoutAdmin };

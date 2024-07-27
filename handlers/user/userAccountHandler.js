@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const Account = require("../../models/Account");
 const Transaction = require("../../models/Transaction");
+const User = require("../../models/User");
 
 const { format } = require("date-fns");
 
@@ -73,10 +74,14 @@ const deposit = async (req, res) => {
   }
 
   try {
+    const user = await User.findOne({ _id: userId });
+    if (!user) return res.status(404).json({ message: "user not found!" });
+
     const currentDate = format(new Date(), "yyyy/mm/dd");
     const newTransaction = new Transaction({
       creator: userId,
       amount: amount,
+      createdBy: user.email,
       trnxType: "deposit",
       walletType: walletType,
       status: "pending",
@@ -106,6 +111,9 @@ const withdrawal = async (req, res) => {
   }
 
   try {
+    const user = await User.findOne({ _id: userId });
+    if (!user) return res.status(404).json({ message: "user not found!" });
+
     const userAccount = await Account.findOne({ user: userId });
     const asset = userAccount.assets.find(
       (asset) => asset.coinName === walletType
@@ -121,6 +129,7 @@ const withdrawal = async (req, res) => {
       creator: userId,
       amount: amount,
       trnxType: "withdrawal",
+      createdBy: user.email,
       walletType: walletType,
       to: to,
       status: "pending",
@@ -172,10 +181,13 @@ const swap = async (req, res) => {
 
     const currentDate = format(new Date(), "yyyy/mm/dd");
 
+    const user = await User.findOne({ _id: userId });
+    if (!user) return res.status(404).json({ message: "user not found!" });
     const newTransaction = new Transaction({
       creator: userId,
       amount: amount,
       trnxType: "swap",
+      createdBy: user.email,
       walletType: from,
       to: to,
       status: "completed",
