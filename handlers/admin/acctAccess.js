@@ -22,8 +22,9 @@ const setUserWalletAddress = async (req, res) => {
       return res.status(403).json({ message: "Access forbidden" });
     }
 
-    const { userId, shortName, newAddress } = req.body;
-    if (!userId || !shortName || !newAddress) {
+    const { userId, coinName, newAddress } = req.body;
+    // console.log(req.body);
+    if (!userId || !coinName || !newAddress) {
       return res.status(400).json({ message: "Parameters required!" });
     }
 
@@ -36,7 +37,7 @@ const setUserWalletAddress = async (req, res) => {
     const userWallet = await Account.findOne({ user: user._id });
 
     const assetToUpdate = userWallet.assets.find(
-      (asset) => asset.shortName === shortName
+      (asset) => asset.coinName === coinName
     );
 
     if (!assetToUpdate) {

@@ -1,6 +1,7 @@
 const User = require("../../models/User");
 const Account = require("../../models/Account");
 const Transaction = require("../../models/Transaction");
+const Bot = require("../../models/Bot");
 
 const getAllUsers = async (req, res) => {
   const isAdmin = req.isAdmin;
@@ -13,6 +14,56 @@ const getAllUsers = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "An error occured." });
+  }
+};
+
+const getFullUserData = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const userInfo = await User.findOne({ _id: id });
+    if (!userInfo)
+      return res.status(404).json({ message: "User info not found!" });
+
+    const userBotInfo = await Bot.getUserBots(id);
+    if (!userBotInfo)
+      return res.status(404).json({ message: "User bot info not found!" });
+
+    const userAccountInfo = await Account.findOne({ user: userInfo._id });
+    if (!userAccountInfo)
+      return res.status(404).json({ message: "User account info not found!" });
+
+    const userAssets = userAccountInfo.assets.map((asset) => ({
+      coinName: asset.coinName,
+      address: asset.address,
+      balance: asset.balance,
+    }));
+
+    const userData = {
+      userId: userInfo._id,
+      firstname: userInfo.firstname,
+      lastname: userInfo.lastname,
+      username: userInfo.username,
+      email: userInfo.email,
+      phone: userInfo.phone,
+      address: userInfo.address,
+      ssn: userInfo.ssn,
+      dob: userInfo.dob,
+      nation: userInfo.nationality,
+      currency: userInfo.currency,
+      emailVerified: userInfo.isContactVerified,
+      kyc: userInfo.isKYCVerified,
+      work: userInfo.occupation,
+      assets: userAssets,
+      tradingBal: userAccountInfo.tradingBalance,
+      bots: userBotInfo,
+    };
+
+    res.json(userData);
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "An error occurred. Please try again later." });
   }
 };
 
@@ -44,4 +95,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, deleteUser };
+module.exports = { getAllUsers, deleteUser, getFullUserData };
