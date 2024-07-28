@@ -8,9 +8,6 @@ const transactionSchema = new Schema({
     ref: "User",
     required: true,
   },
-  createdBy: {
-    type: String,
-  },
   amount: {
     type: String,
     required: true,
@@ -32,6 +29,12 @@ const transactionSchema = new Schema({
     type: String,
   },
   date: {
+    type: String,
+  },
+  email: {
+    type: String,
+  },
+  username: {
     type: String,
   },
 });

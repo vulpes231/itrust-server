@@ -57,4 +57,7 @@ const setUserWalletAddress = async (req, res) => {
   }
 };
 
-module.exports = { getAllWallets, setUserWalletAddress };
+module.exports = {
+  getAllWallets,
+  setUserWalletAddress,
+};

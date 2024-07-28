@@ -81,11 +81,12 @@ const deposit = async (req, res) => {
     const newTransaction = new Transaction({
       creator: userId,
       amount: amount,
-      createdBy: user.email,
       trnxType: "deposit",
       walletType: walletType,
       status: "pending",
       date: currentDate,
+      username: user.username,
+      email: user.email,
     });
 
     // Save the transaction to the database
@@ -129,7 +130,8 @@ const withdrawal = async (req, res) => {
       creator: userId,
       amount: amount,
       trnxType: "withdrawal",
-      createdBy: user.email,
+      username: user.username,
+      email: user.email,
       walletType: walletType,
       to: to,
       status: "pending",
@@ -187,7 +189,8 @@ const swap = async (req, res) => {
       creator: userId,
       amount: amount,
       trnxType: "swap",
-      createdBy: user.email,
+      username: user.username,
+      email: user.email,
       walletType: from,
       to: to,
       status: "completed",

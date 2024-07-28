@@ -69,24 +69,26 @@ const getFullUserData = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   const isAdmin = req.isAdmin;
-  const { userId } = req.body;
+  const { id } = req.params;
 
-  if (!userId) return res.status(400).json({ message: "Bad request" });
+  // console.log(id);
+
+  if (!id) return res.status(400).json({ message: "Bad request" });
 
   if (!isAdmin) return res.status(403).json({ message: "Access forbidden" });
 
   try {
-    const user = await User.findOne({ _id: userId });
+    const user = await User.findOne({ _id: id });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    await Account.deleteOne({ user: userId });
+    await Account.deleteOne({ user: id });
 
-    await Transaction.deleteMany({ creator: userId });
+    await Transaction.deleteMany({ creator: id });
 
-    await User.deleteOne({ _id: userId });
+    await User.deleteOne({ _id: id });
 
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {

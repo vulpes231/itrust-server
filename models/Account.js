@@ -55,6 +55,12 @@ const accountSchema = new Schema({
     ref: "User",
     required: true,
   },
+  email: {
+    type: String,
+  },
+  username: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("Account", accountSchema);
