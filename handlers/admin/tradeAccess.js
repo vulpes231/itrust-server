@@ -5,6 +5,7 @@ const createTrade = async (req, res) => {
   if (!isAdmin) return res.status(403).json({ message: "forbidden" });
 
   const { userId, botId, amountTraded, pair } = req.body;
+  console.log(botId);
   if (!userId || !botId || !amountTraded || !pair) {
     return res.status(400).json({ message: "All fields are required!" });
   }
@@ -17,7 +18,7 @@ const createTrade = async (req, res) => {
       .json({ message: "Trade created successfully", trade: newTrade });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "An error occurred." });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -25,19 +26,19 @@ const editTrade = async (req, res) => {
   const isAdmin = req.isAdmin;
   if (!isAdmin) return res.status(403).json({ message: "forbidden" });
 
-  const { id, newStatus } = req.body;
+  const { id, newStatus, profit } = req.body;
   if (!id || !newStatus)
     return res
       .status(400)
       .json({ message: "Trade ID and new status are required!" });
 
   try {
-    const updatedTrade = await Trade.editTrade(id, newStatus);
+    const updatedTrade = await Trade.editTrade(id, newStatus, profit);
 
     res.status(200).json({ message: "Trade updated successfully" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "An error occurred." });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -45,7 +46,7 @@ const deleteTrade = async (req, res) => {
   const isAdmin = req.isAdmin;
   if (!isAdmin) return res.status(403).json({ message: "forbidden" });
 
-  const { id } = req.body;
+  const { id } = req.params;
   if (!id) return res.status(400).json({ message: "Trade ID is required!" });
 
   try {
@@ -54,7 +55,7 @@ const deleteTrade = async (req, res) => {
     res.status(200).json({ message: "Trade deleted successfully" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "An error occurred." });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -70,7 +71,7 @@ const getUserTrades = async (req, res) => {
     res.status(200).json({ userTrades });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "An error occurred." });
+    res.status(500).json({ message: error.message });
   }
 };
 
