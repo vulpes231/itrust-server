@@ -95,6 +95,11 @@ const userSchema = new Schema({
   occupation: {
     type: String,
   },
+  plan: {
+    type: String,
+    enum: ["free", "pro", "expert", "custom"],
+    default: "free",
+  },
   family: {
     type: String,
   },

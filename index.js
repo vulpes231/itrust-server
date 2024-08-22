@@ -56,7 +56,8 @@ app.use("/account", require("./routes/user/account"));
 app.use("/transaction", require("./routes/user/transaction"));
 app.use("/bot", require("./routes/user/bot"));
 app.use("/trade", require("./routes/user/trade"));
-// app.use("/verify", require("./routes/user/verify"));
+app.use("/docs", require("./routes/user/docu"));
+app.use("/plans", require("./routes/user/plan"));
 
 // admin route
 app.use("/users", require("./routes/admin/manageuser"));
@@ -65,6 +66,8 @@ app.use("/wallet", require("./routes/admin/manageaccts"));
 app.use("/managebot", require("./routes/admin/managebot"));
 app.use("/signout", require("./routes/admin/logout"));
 app.use("/managetrade", require("./routes/admin/trade"));
+app.use("/managedocs", require("./routes/admin/managedocu"));
+app.use("/manageplans", require("./routes/admin/manageplans"));
 
 app.use(errorLogger);
 

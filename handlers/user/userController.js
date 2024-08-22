@@ -1,5 +1,6 @@
 const User = require("../../models/User");
 
+const bcrypt = require("bcryptjs");
 const updateRemainingDay = async (req, res) => {
   const userId = req.userId;
   try {
@@ -96,4 +97,32 @@ const editUser = async (req, res) => {
   }
 };
 
-module.exports = { updateRemainingDay, getUser, editUser };
+const changePassword = async (req, res) => {
+  const userId = req.userId;
+  const { password, newPassword } = req.body;
+  if (!password || !newPassword) {
+    return res.status(400).json({ message: "all fields required!" });
+  }
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({ message: "user not found!" });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: "invalid password entered!" });
+    }
+
+    const hashedPass = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPass;
+    await user.save();
+    res.status(200).json({ message: "password changed successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "error changing password!" });
+  }
+};
+
+module.exports = { updateRemainingDay, getUser, editUser, changePassword };
