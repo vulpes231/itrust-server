@@ -96,40 +96,4 @@ const editUser = async (req, res) => {
   }
 };
 
-const verifyKYC = async (req, res) => {
-  const userId = req.userId;
-  const { passport, idFront, idBack, utility } = req.files;
-
-  // Check if the required files are present
-  if (!passport || !idFront || !idBack) {
-    return res.status(400).json({ message: "All documents are required!" });
-  }
-
-  try {
-    // Find the user by userId
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    // Update user with file paths
-    user.passport = passport[0].path;
-    user.idFront = idFront[0].path;
-    user.idBack = idBack[0].path;
-    user.utility = utility[0].path;
-    user.isKYCVerified = true; // Set KYC verification status to true
-
-    // Save updated user information
-    await user.save();
-
-    res.status(200).json({ message: "User verification successful." });
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: "An error occurred. Please try again later." });
-  }
-};
-
-module.exports = { updateRemainingDay, getUser, editUser, verifyKYC };
+module.exports = { updateRemainingDay, getUser, editUser };

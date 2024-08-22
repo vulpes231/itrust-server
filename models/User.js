@@ -102,18 +102,9 @@ const userSchema = new Schema({
     type: String,
     default: null,
   },
-  idFront: {
+  KYCStatus: {
     type: String,
-    default: null,
-  },
-  idBack: {
-    type: String,
-  },
-  utility: {
-    type: String,
-  },
-  passport: {
-    type: String,
+    default: "not verified",
   },
   refreshToken: {
     type: String,

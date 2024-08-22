@@ -44,6 +44,7 @@ app.use("/account", require("./routes/user/account"));
 app.use("/transaction", require("./routes/user/transaction"));
 app.use("/bot", require("./routes/user/bot"));
 app.use("/trade", require("./routes/user/trade"));
+app.use("/verify", require("./routes/user/verify"));
 
 // admin route
 app.use("/users", require("./routes/admin/manageuser"));
