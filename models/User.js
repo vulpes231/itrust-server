@@ -102,6 +102,19 @@ const userSchema = new Schema({
     type: String,
     default: null,
   },
+  idFront: {
+    type: String,
+    default: null,
+  },
+  idBack: {
+    type: String,
+  },
+  utility: {
+    type: String,
+  },
+  passport: {
+    type: String,
+  },
   refreshToken: {
     type: String,
     default: null,

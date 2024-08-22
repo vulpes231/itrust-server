@@ -6,6 +6,16 @@ const { errorLogger, requestLogger } = require("./middlewares/myLoggers");
 const { connectDB } = require("./configs/connectDB");
 const { verifyJWT } = require("./middlewares/verifyJWT");
 const { corsOptions } = require("./configs/corsOption");
+const fs = require("fs");
+const path = require("path");
+
+// Define the directory path
+const uploadDirectory = path.join(__dirname, "uploads");
+
+// Ensure the directory exists
+if (!fs.existsSync(uploadDirectory)) {
+  fs.mkdirSync(uploadDirectory, { recursive: true });
+}
 
 const PORT = process.env.PORT || 3000;
 const app = express();
