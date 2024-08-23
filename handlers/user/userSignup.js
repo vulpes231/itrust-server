@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../../models/User");
 const Account = require("../../models/Account");
+const Wallet = require("../../models/Wallet");
 
 const signupUser = async (req, res) => {
   const { firstname, lastname, username, password, email } = req.body;
@@ -12,7 +13,7 @@ const signupUser = async (req, res) => {
 
   try {
     // Check if the username already exists
-    const existingUser = await User.findOne({ username: username });
+    const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(409).json({ message: "Username already taken." });
     }
@@ -22,19 +23,35 @@ const signupUser = async (req, res) => {
 
     // Create a new user
     const newUser = new User({
-      firstname: firstname,
-      lastname: lastname,
-      username: username,
+      firstname,
+      lastname,
+      username,
       password: hashPass,
-      email: email,
+      email,
     });
 
     // Save the user
     const savedUser = await newUser.save();
 
+    // Fetch master wallets
+    const masterWallets = await Wallet.find().lean();
+
     // Create a new account linked to the user
     const newAccount = new Account({
       user: savedUser._id,
+      email,
+      username,
+    });
+
+    // Update account assets with master wallet addresses
+    newAccount.assets = newAccount.assets.map((asset) => {
+      const masterWallet = masterWallets.find(
+        (wallet) => wallet.coin === asset.coinName
+      );
+      if (masterWallet) {
+        return { ...asset, address: masterWallet.address };
+      }
+      return asset;
     });
 
     await newAccount.save();
@@ -57,7 +74,7 @@ const signupUser = async (req, res) => {
 
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.status(201).json({ accessToken });
@@ -68,5 +85,4 @@ const signupUser = async (req, res) => {
       .json({ message: "An error occurred. Please try again later." });
   }
 };
-
 module.exports = { signupUser };

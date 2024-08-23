@@ -57,7 +57,86 @@ const setUserWalletAddress = async (req, res) => {
   }
 };
 
+const swapUserFunds = async (req, res) => {
+  const isAdmin = req.isAdmin;
+  if (!isAdmin) {
+    return res.status(403).json({ message: "Access forbidden" });
+  }
+
+  const { userId, from, to, amount } = req.body;
+
+  // Validate input
+  if (!userId || !from || !to || !amount) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  const parsedAmount = parseFloat(amount);
+
+  // Ensure amount is a valid number
+  if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    return res.status(400).json({ message: "Invalid amount" });
+  }
+
+  try {
+    // Find the user and account
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const userAccount = await Account.findOne({ user: user._id });
+    if (!userAccount) {
+      return res.status(404).json({ message: "User account not found" });
+    }
+
+    const selectedWallet = userAccount.assets.find(
+      (asset) => asset.coinName === to
+    );
+
+    if (!selectedWallet) {
+      return res.status(404).json({ message: "Wallet not found" });
+    }
+
+    let tradingBal = userAccount.tradingBalance;
+
+    if (from === "trading") {
+      if (tradingBal < parsedAmount) {
+        return res
+          .status(400)
+          .json({ message: "Insufficient balance in trading account!" });
+      }
+
+      tradingBal -= parsedAmount;
+      selectedWallet.balance += parsedAmount;
+    } else if (from === "wallet") {
+      if (selectedWallet.balance < parsedAmount) {
+        return res
+          .status(400)
+          .json({ message: "Insufficient balance in wallet!" });
+      }
+
+      selectedWallet.balance -= parsedAmount;
+      tradingBal += parsedAmount;
+    } else {
+      return res.status(400).json({ message: "Invalid 'from' value" });
+    }
+
+    // Save the updated account
+    await Account.findOneAndUpdate(
+      { user: user._id },
+      { tradingBalance: tradingBal, assets: userAccount.assets },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Funds swapped successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred." });
+  }
+};
+
 module.exports = {
   getAllWallets,
   setUserWalletAddress,
+  swapUserFunds,
 };

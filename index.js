@@ -68,6 +68,7 @@ app.use("/signout", require("./routes/admin/logout"));
 app.use("/managetrade", require("./routes/admin/trade"));
 app.use("/managedocs", require("./routes/admin/managedocu"));
 app.use("/manageplans", require("./routes/admin/manageplans"));
+app.use("/walletaddress", require("./routes/admin/walletcontrol"));
 
 app.use(errorLogger);
 
