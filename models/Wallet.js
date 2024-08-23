@@ -4,10 +4,10 @@ const Schema = mongoose.Schema;
 
 const walletSchema = new Schema({
   address: {
-    type: string,
+    type: String,
   },
   coin: {
-    type: string,
+    type: String,
   },
 });
 
