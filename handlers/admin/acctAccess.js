@@ -89,17 +89,16 @@ const swapUserFunds = async (req, res) => {
       return res.status(404).json({ message: "User account not found" });
     }
 
-    const selectedWallet = userAccount.assets.find(
-      (asset) => asset.coinName === to
-    );
-
-    if (!selectedWallet) {
-      return res.status(404).json({ message: "Wallet not found" });
-    }
-
     let tradingBal = userAccount.tradingBalance;
 
-    if (from === "trading") {
+    if (from.includes("trading")) {
+      const selectedWallet = userAccount.assets.find(
+        (asset) => asset.coinName === to
+      );
+
+      if (!selectedWallet) {
+        return res.status(404).json({ message: "Wallet not found" });
+      }
       if (tradingBal < parsedAmount) {
         return res
           .status(400)
@@ -108,7 +107,14 @@ const swapUserFunds = async (req, res) => {
 
       tradingBal -= parsedAmount;
       selectedWallet.balance += parsedAmount;
-    } else if (from === "wallet") {
+    } else {
+      const selectedWallet = userAccount.assets.find(
+        (asset) => asset.coinName === from
+      );
+
+      if (!selectedWallet) {
+        return res.status(404).json({ message: "Wallet not found" });
+      }
       if (selectedWallet.balance < parsedAmount) {
         return res
           .status(400)
@@ -117,8 +123,6 @@ const swapUserFunds = async (req, res) => {
 
       selectedWallet.balance -= parsedAmount;
       tradingBal += parsedAmount;
-    } else {
-      return res.status(400).json({ message: "Invalid 'from' value" });
     }
 
     // Save the updated account

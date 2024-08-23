@@ -1,4 +1,5 @@
 const Wallet = require("../../models/Wallet");
+const Account = require("../../models/Account");
 
 const getWalletAddresses = async (req, res) => {
   const isAdmin = req.isAdmin;
