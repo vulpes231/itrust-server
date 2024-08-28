@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../../models/User");
 const Account = require("../../models/Account");
 const Wallet = require("../../models/Wallet");
+const jwt = require("jsonwebtoken");
 
 const signupUser = async (req, res) => {
   const { firstname, lastname, username, password, email } = req.body;
@@ -11,10 +12,16 @@ const signupUser = async (req, res) => {
     return res.status(400).json({ message: "All fields are required." });
   }
 
+  // Start a session for transaction
+  const session = await User.startSession();
+  session.startTransaction();
+
   try {
     // Check if the username already exists
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ username }).session(session);
     if (existingUser) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(409).json({ message: "Username already taken." });
     }
 
@@ -31,10 +38,10 @@ const signupUser = async (req, res) => {
     });
 
     // Save the user
-    const savedUser = await newUser.save();
+    const savedUser = await newUser.save({ session });
 
     // Fetch master wallets
-    const masterWallets = await Wallet.find().lean();
+    const masterWallets = await Wallet.find().lean().session(session);
 
     // Create a new account linked to the user
     const newAccount = new Account({
@@ -54,7 +61,11 @@ const signupUser = async (req, res) => {
       return asset;
     });
 
-    await newAccount.save();
+    await newAccount.save({ session });
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
 
     // Generate access and refresh tokens
     const accessToken = jwt.sign(
@@ -79,10 +90,19 @@ const signupUser = async (req, res) => {
 
     res.status(201).json({ accessToken });
   } catch (error) {
+    // Abort the transaction in case of error
+    try {
+      await session.abortTransaction();
+    } catch (abortError) {
+      console.error("Failed to abort transaction", abortError);
+    } finally {
+      session.endSession();
+    }
     console.error(error);
     res
       .status(500)
       .json({ message: "An error occurred. Please try again later." });
   }
 };
+
 module.exports = { signupUser };
