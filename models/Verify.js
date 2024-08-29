@@ -7,16 +7,6 @@ const verificationSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
-  idFront: {
-    type: String,
-    default: null,
-  },
-  idBack: {
-    type: String,
-  },
-  utility: {
-    type: String,
-  },
   passport: {
     type: String,
   },

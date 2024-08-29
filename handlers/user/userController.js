@@ -35,7 +35,8 @@ const getUser = async (req, res) => {
 };
 
 const editUser = async (req, res) => {
-  const user = req.user; // Assuming this is some identifier for the user
+  const userId = req.userId;
+
   const {
     firstname,
     lastname,
@@ -57,20 +58,23 @@ const editUser = async (req, res) => {
 
   try {
     // Find the user by some identifier, e.g., username
-    const findUser = await User.findOne({ username: user });
+    const findUser = await User.findOne({ _id: userId });
 
     if (!findUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Create an address object with the updated fields
-    const address = {
-      street: street || findUser.address.street,
-      state: state || findUser.address.state,
-      city: city || findUser.address.city,
-      country: country || findUser.address.country,
-      zipcode: zipcode || findUser.address.zipcode,
-    };
+    let address;
+
+    if (street) {
+      address = {
+        street: street || findUser.address.street,
+        state: state || findUser.address.state,
+        city: city || findUser.address.city,
+        country: country || findUser.address.country,
+        zipcode: zipcode || findUser.address.zipcode,
+      };
+    }
 
     // Update the user fields
     findUser.firstname = firstname || findUser.firstname;

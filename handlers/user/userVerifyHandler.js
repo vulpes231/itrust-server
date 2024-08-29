@@ -1,49 +1,59 @@
+const mongoose = require("mongoose");
 const User = require("../../models/User");
 const Verify = require("../../models/Verify");
 
 const verifyKYC = async (req, res) => {
   const userId = req.userId;
-  const { passport, idFront, idBack, utility } = req.files || {};
-
-  console.log(req.body);
-  console.log(req.files);
+  const { passport } = req.files || {};
 
   // Check if the required files are present
-  if (!passport || !idFront || !idBack) {
-    return res.status(400).json({ message: "All documents are required!" });
+  if (!passport) {
+    return res.status(400).json({ message: "ID required!" });
   }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
   try {
     // Find the user by userId
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).session(session);
 
     if (!user) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).json({ message: "User not found." });
     }
 
-    const verificationRequest = await Verify.findOne({ requestedBy: userId });
+    const verificationRequest = await Verify.findOne({
+      requestedBy: userId,
+    }).session(session);
 
-    if (verificationRequest)
+    if (verificationRequest) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(400).json({ message: "Already requested" });
+    }
 
     // Create the request
     const newRequest = {
       requestedBy: user._id,
-      idFront: idFront[0].path,
-      idBack: idBack[0].path,
       passport: passport[0].path,
-      utility: utility ? utility[0].path : "None",
     };
 
-    await Verify.create(newRequest);
+    await Verify.create([newRequest], { session });
 
     user.KYCStatus = "pending";
 
     // Save updated user information
-    await user.save();
+    await user.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
 
     res.status(200).json({ message: "Verification requested successfully." });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     console.error(error);
     res
       .status(500)
