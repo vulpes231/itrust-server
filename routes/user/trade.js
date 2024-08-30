@@ -6,7 +6,7 @@ const {
 } = require("../../handlers/user/tradeHandler");
 const router = express.Router();
 
-router.route("/").get(getAllTrades);
-router.route("/:id").get(getTradesByUser);
+router.route("/all").get(getAllTrades);
+router.route("/").get(getTradesByUser);
 
 module.exports = router;
