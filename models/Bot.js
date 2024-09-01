@@ -92,6 +92,11 @@ botSchema.statics.activateBot = async function (
   const user = await User.findById(userId).session(session);
   if (!user) throw new Error("User not found");
 
+  if (!user.canUseBot)
+    throw new Error(
+      "this action cannot be performed at the moment. kindly contact a third party signal provider"
+    );
+
   const account = await Account.findOne({ user: userId }).session(session);
   if (!account) throw new Error("Account not found");
 
@@ -100,7 +105,7 @@ botSchema.statics.activateBot = async function (
   );
 
   if (coin.balance < updateData.amount) {
-    throw new Error("Insufficient fund.");
+    throw new Error("Insufficient funds.");
   }
 
   coin.balance -= parseFloat(updateData.amount);

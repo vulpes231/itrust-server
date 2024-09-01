@@ -123,6 +123,22 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  canUseBot: {
+    type: Boolean,
+    default: false,
+  },
+  swapBalance: {
+    type: Boolean,
+    default: false,
+  },
+  swapBalance: {
+    type: Number,
+    default: 0,
+  },
+  swapBalancePaid: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Pre-save hook to trim spaces from string fields

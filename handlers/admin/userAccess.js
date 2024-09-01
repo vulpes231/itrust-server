@@ -18,6 +18,8 @@ const getAllUsers = async (req, res) => {
 };
 
 const getFullUserData = async (req, res) => {
+  const isAdmin = req.isAdmin;
+  if (!isAdmin) return res.status(403).json({ message: "Access forbidden" });
   const { id } = req.params;
   try {
     const userInfo = await User.findOne({ _id: id });
@@ -53,6 +55,8 @@ const getFullUserData = async (req, res) => {
       emailVerified: userInfo.isContactVerified,
       kyc: userInfo.isKYCVerified,
       work: userInfo.occupation,
+      botAccess: userInfo.canUseBot,
+      swapBal: userInfo.swapBalancePaid,
       assets: userAssets,
       tradingBal: userAccountInfo.tradingBalance,
       bots: userBotInfo,
@@ -97,4 +101,68 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, deleteUser, getFullUserData };
+const manageUserBot = async (req, res) => {
+  const isAdmin = req.isAdmin;
+  if (!isAdmin) return res.status(403).json({ message: "Access forbidden" });
+  const { id } = req.body;
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: "user not found!" });
+
+    user.canUseBot = user.canUseBot === false ? true : false;
+    await user.save();
+    res.status(200).json({ message: "user bot access updated" });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "An error occurred. Please try again later." });
+  }
+};
+
+const manageUserSwap = async (req, res) => {
+  const isAdmin = req.isAdmin;
+  if (!isAdmin) return res.status(403).json({ message: "Access forbidden" });
+  const { id } = req.body;
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: "user not found!" });
+
+    user.swapBalancePaid = user.swapBalancePaid === false ? true : false;
+    await user.save();
+    res.status(200).json({ message: "updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "An error occurred. Please try again later." });
+  }
+};
+
+const setSwapBalance = async (req, res) => {
+  const isAdmin = req.isAdmin;
+  if (!isAdmin) return res.status(403).json({ message: "Access forbidden" });
+  const { id, swapBal } = req.body;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: "user not found!" });
+    user.swapBalance = swapBal;
+    await user.save();
+    res.status(200).json({ message: "user bot access updated" });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "An error occurred. Please try again later." });
+  }
+};
+
+module.exports = {
+  getAllUsers,
+  deleteUser,
+  getFullUserData,
+  manageUserBot,
+  manageUserSwap,
+  setSwapBalance,
+};

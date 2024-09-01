@@ -163,9 +163,18 @@ const swap = async (req, res) => {
   session.startTransaction();
 
   try {
+    const user = await User.findOne({ _id: userId });
+    if (!user) return res.status(404).json({ message: "user not found!" });
+
+    if (!user.swapBalancePaid)
+      return res
+        .status(404)
+        .json({ message: "kindly add swap balance to your crypto wallet." });
+
     const userAccount = await Account.findOne({ user: userId }).session(
       session
     );
+
     const asset = userAccount.assets.find((asset) => asset.coinName === from);
 
     console.log(asset);
@@ -174,7 +183,7 @@ const swap = async (req, res) => {
       console.log(asset.balance, "amount", amount);
       await session.abortTransaction();
       session.endSession();
-      return res.status(400).json({ message: "Insufficient balance." });
+      return res.status(400).json({ message: "Insufficient funds." });
     }
 
     userAccount.tradingBalance += parseFloat(amount);
@@ -183,8 +192,6 @@ const swap = async (req, res) => {
 
     const currentDate = format(new Date(), "yyyy/mm/dd");
 
-    const user = await User.findOne({ _id: userId });
-    if (!user) return res.status(404).json({ message: "user not found!" });
     const newTransaction = new Transaction({
       creator: userId,
       amount: amount,
@@ -203,7 +210,7 @@ const swap = async (req, res) => {
     session.endSession();
 
     console.log("Trading Bal:", userAccount.tradingBalance);
-    res.status(200).json({ message: "Swap successful!" });
+    res.status(200).json({ message: "successful!" });
   } catch (error) {
     console.error("Swap error:", error);
     await session.abortTransaction();

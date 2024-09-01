@@ -27,6 +27,10 @@ const accountSchema = new Schema({
     type: Number,
     default: 0,
   },
+  safeDepositMargin: {
+    type: Number,
+    default: 0,
+  },
   assets: {
     type: [assetSchema],
     default: [
