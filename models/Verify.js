@@ -1,4 +1,4 @@
-const { default: mongoose, SchemaTypes } = require("mongoose");
+const { default: mongoose } = require("mongoose");
 
 const Schema = mongoose.Schema;
 
@@ -12,8 +12,12 @@ const verificationSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["not verified", "pending", "verified"],
+    enum: ["not verified", "pending", "verified", "failed"],
     default: "not verified",
+  },
+  date: {
+    type: Date,
+    default: Date.now,
   },
 });
 

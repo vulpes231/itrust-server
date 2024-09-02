@@ -6,6 +6,7 @@ const {
   setSwapBalance,
   manageUserBot,
   manageUserSwap,
+  updateUserInfo,
 } = require("../../handlers/admin/userAccess");
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router
   .put(manageUserBot);
 
 router.route("/swap/:id").put(manageUserSwap);
+router.route("/edit/:id").put(updateUserInfo);
 
 router.route("/delete/:id").put(deleteUser);
 

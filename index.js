@@ -49,6 +49,7 @@ app.use("/create", require("./routes/admin/create"));
 
 app.use(verifyJWT);
 app.post("/verify", upload, verifyKYC);
+
 app.use("/refresh", require("./routes/user/refresh"));
 app.use("/user", require("./routes/user/user"));
 app.use("/logout", require("./routes/user/logout"));
@@ -68,6 +69,7 @@ app.use("/signout", require("./routes/admin/logout"));
 app.use("/managetrade", require("./routes/admin/trade"));
 app.use("/managedocs", require("./routes/admin/managedocu"));
 app.use("/manageplans", require("./routes/admin/manageplans"));
+app.use("/verification", require("./routes/admin/manageverify"));
 app.use("/walletaddress", require("./routes/admin/walletcontrol"));
 
 app.use(errorLogger);
