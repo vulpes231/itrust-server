@@ -52,6 +52,7 @@ const editUser = async (req, res) => {
     nationality,
     currency,
     experience,
+    occupation,
     referral,
     family,
   } = req.body;
@@ -86,6 +87,7 @@ const editUser = async (req, res) => {
     findUser.dob = dob || findUser.dob;
     findUser.nationality = nationality || findUser.nationality;
     findUser.currency = currency || findUser.currency;
+    findUser.occupation = occupation || findUser.occupation;
     findUser.experience = experience || findUser.experience;
     findUser.family = family || findUser.family;
     findUser.referral = referral || findUser.referral;

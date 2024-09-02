@@ -41,7 +41,10 @@ const signinUser = async (req, res) => {
       accessToken: accessToken,
     };
 
-    res.cookie("jwt", refreshToken);
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.status(200).json({ userObj });
   } catch (error) {
     console.log(error);

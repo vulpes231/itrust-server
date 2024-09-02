@@ -128,10 +128,6 @@ const userSchema = new Schema({
     default: false,
   },
   swapBalance: {
-    type: Boolean,
-    default: false,
-  },
-  swapBalance: {
     type: Number,
     default: 0,
   },

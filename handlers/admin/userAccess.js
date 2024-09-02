@@ -50,10 +50,16 @@ const getFullUserData = async (req, res) => {
       address: userInfo.address,
       ssn: userInfo.ssn,
       dob: userInfo.dob,
+      swapBalancePaid: userInfo.swapBalancePaid,
+      swapBal: userInfo.swapBal,
       nation: userInfo.nationality,
       currency: userInfo.currency,
+      family: userInfo.family,
+      occupation: userInfo.occupation,
+      experience: userInfo.experience,
       emailVerified: userInfo.isContactVerified,
-      kyc: userInfo.isKYCVerified,
+      isKYCVerified: userInfo.isKYCVerified,
+      KYCStatus: userInfo.KYCStatus,
       work: userInfo.occupation,
       botAccess: userInfo.canUseBot,
       swapBal: userInfo.swapBalancePaid,
@@ -104,7 +110,8 @@ const deleteUser = async (req, res) => {
 const manageUserBot = async (req, res) => {
   const isAdmin = req.isAdmin;
   if (!isAdmin) return res.status(403).json({ message: "Access forbidden" });
-  const { id } = req.body;
+  const { id } = req.params;
+  console.log(id);
   try {
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ message: "user not found!" });
@@ -142,12 +149,13 @@ const manageUserSwap = async (req, res) => {
 const setSwapBalance = async (req, res) => {
   const isAdmin = req.isAdmin;
   if (!isAdmin) return res.status(403).json({ message: "Access forbidden" });
-  const { id, swapBal } = req.body;
+  const { amount } = req.body;
+  const { id } = req.params;
 
   try {
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ message: "user not found!" });
-    user.swapBalance = swapBal;
+    user.swapBalance = amount;
     await user.save();
     res.status(200).json({ message: "user bot access updated" });
   } catch (error) {
