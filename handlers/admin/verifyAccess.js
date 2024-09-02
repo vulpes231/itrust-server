@@ -12,7 +12,7 @@ const getUserVerificationRequest = async (req, res) => {
     if (!user) return res.status(404).json({ message: "user not found" });
     const verificationRequest = await Verify.findOne({ requestedBy: user._id });
     if (!verificationRequest)
-      return res.status(404).json({ message: "request not found" });
+      return res.status(404).json({ message: "no request" });
 
     res.status(200).json({ verificationRequest });
   } catch (error) {
