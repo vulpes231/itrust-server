@@ -33,6 +33,8 @@ const approveUserKyc = async (req, res) => {
     const verificationRequest = await Verify.findOne({ requestedBy: user._id });
     if (!verificationRequest)
       return res.status(404).json({ message: "request not found" });
+    if (user.isKYCVerified)
+      return res.status(409).json({ message: "already verified" });
 
     verificationRequest.status = "verified";
     await verificationRequest.save();
@@ -61,7 +63,7 @@ const rejectUserKyc = async (req, res) => {
 
     verificationRequest.status = "failed";
     await verificationRequest.save();
-    user.KYCStatus = "failed";
+    user.KYCStatus = "not verified";
     user.isKYCVerified = false;
     await user.save();
     res.status(200).json({ message: "verification request rejected" });
