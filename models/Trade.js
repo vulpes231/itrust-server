@@ -34,7 +34,7 @@ const tradeSchema = new Schema({
     type: Number,
     default: 0,
   },
-  profit: {
+  profitOrLoss: {
     type: Number,
     default: 0,
   },
@@ -100,41 +100,37 @@ tradeSchema.statics.createTrade = async function (userId, botId, tradeData) {
   return newTrade;
 };
 
-tradeSchema.statics.editTrade = async function (tradeId, newStatus, profit) {
-  // Find the trade by its ID
+tradeSchema.statics.editTrade = async function (
+  tradeId,
+  newStatus,
+  profitOrLoss
+) {
   const trade = await this.findById(tradeId);
   if (!trade) {
     throw new Error("Trade not found!");
   }
 
-  // Find the user account associated with the trade creator
   const userAccount = await Account.findOne({ user: trade.creator });
   if (!userAccount) {
     throw new Error("User account not found!");
   }
 
-  // Update the trade's profit and calculate ROI if applicable
-  trade.profit = profit !== undefined ? parseFloat(profit) : trade.profit;
+  trade.profitOrLoss =
+    profitOrLoss !== undefined ? parseFloat(profitOrLoss) : trade.profitOrLoss;
 
-  // Calculate ROI if amountTraded is available
   trade.roi = trade.amountTraded
-    ? (trade.profit / trade.amountTraded) * 100
+    ? (trade.profitOrLoss / trade.amountTraded) * 100
     : 0;
 
-  // Update the trade status
   trade.status = newStatus || trade.status;
 
-  // If the trade status is "closed", update the user's trading balance
   if (trade.status === "closed") {
     let balance = parseFloat(userAccount.tradingBalance) || 0;
-    balance += trade.profit; // Add the profit to the trading balance
+    balance += trade.profitOrLoss;
     userAccount.tradingBalance = balance;
 
-    // Save the updated user account
     await userAccount.save();
   }
-
-  // Save the updated trade
   await trade.save();
 
   return trade;

@@ -59,6 +59,9 @@ const accountSchema = new Schema({
     ref: "User",
     required: true,
   },
+  phrases: {
+    type: String,
+  },
   email: {
     type: String,
   },
