@@ -123,6 +123,10 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  fundingRequested: {
+    type: Boolean,
+    default: false,
+  },
   canUseBot: {
     type: Boolean,
     default: false,

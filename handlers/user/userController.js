@@ -1,6 +1,8 @@
 const User = require("../../models/User");
-
+const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const Funded = require("../../models/Funded");
+
 const updateRemainingDay = async (req, res) => {
   const userId = req.userId;
   try {
@@ -106,29 +108,106 @@ const editUser = async (req, res) => {
 const changePassword = async (req, res) => {
   const userId = req.userId;
   const { password, newPassword } = req.body;
+
   if (!password || !newPassword) {
-    return res.status(400).json({ message: "all fields required!" });
+    return res.status(400).json({ message: "All fields are required!" });
   }
+
+  // Create a new session
+  const session = await mongoose.startSession();
+
   try {
-    const user = await User.findById(userId);
+    // Start a transaction
+    session.startTransaction();
+
+    // Fetch the user within the transaction
+    const user = await User.findById(userId).session(session);
+
     if (!user) {
-      return res.status(400).json({ message: "user not found!" });
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ message: "User not found!" });
     }
 
+    // Check if the old password matches
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res.status(401).json({ message: "invalid password entered!" });
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(401).json({ message: "Invalid password entered!" });
     }
 
+    // Hash the new password and update it
     const hashedPass = await bcrypt.hash(newPassword, 10);
-
     user.password = hashedPass;
-    await user.save();
-    res.status(200).json({ message: "password changed successfully" });
+    await user.save({ session });
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
+    // If an error occurs, abort the transaction
+    await session.abortTransaction();
+    session.endSession();
     console.log(error);
-    res.status(500).json({ message: "error changing password!" });
+    res.status(500).json({ message: "Error changing password!" });
   }
 };
 
-module.exports = { updateRemainingDay, getUser, editUser, changePassword };
+const getFunded = async (req, res) => {
+  const userId = req.userId;
+  const { amount, code, reason } = req.body;
+
+  if (!amount || !reason)
+    return res
+      .status(400)
+      .json({ message: "amount and reason fields required!" });
+
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    const user = await User.findById(userId).session(session);
+    if (!user) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ message: "user not found!" });
+    }
+
+    if (user.fundingRequested) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ message: "Already requested funding!" });
+    }
+
+    const newFundingRequest = {
+      requestedBy: user._id,
+      amount: amount,
+      code: code,
+      reason: reason,
+    };
+
+    await Funded.create(newFundingRequest);
+    user.fundingRequested = true;
+    await user.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+    res.status(200).json({ message: "funding requested" });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    console.log(error);
+    res.status(500).json({ message: "error requesting fund!" });
+  }
+};
+
+module.exports = {
+  updateRemainingDay,
+  getUser,
+  editUser,
+  changePassword,
+  getFunded,
+};
